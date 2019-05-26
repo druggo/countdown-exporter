@@ -6,8 +6,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -96,7 +98,7 @@ func checkThreshold(deadlineTime, deadlineTimeFormat string, threshold int, thre
 	case "HOURS":
 		fallthrough
 	case "H":
-		dt = time.Now().Local().Add(time.Hour * time.Duration(threshold))
+		dt = time.Now().Add(time.Hour * time.Duration(threshold))
 
 	case "MINUTE":
 		fallthrough
@@ -107,7 +109,7 @@ func checkThreshold(deadlineTime, deadlineTimeFormat string, threshold int, thre
 	case "MINS":
 		fallthrough
 	case "M":
-		dt = time.Now().Local().Add(time.Minute * time.Duration(threshold))
+		dt = time.Now().Add(time.Minute * time.Duration(threshold))
 
 	case "SECOND":
 		fallthrough
@@ -118,7 +120,7 @@ func checkThreshold(deadlineTime, deadlineTimeFormat string, threshold int, thre
 	case "SECS":
 		fallthrough
 	case "S":
-		dt = time.Now().Local().Add(time.Second * time.Duration(threshold))
+		dt = time.Now().Add(time.Second * time.Duration(threshold))
 	}
 
 	var timeFormat string
@@ -180,7 +182,7 @@ func initialize(c *Config) {
 	if err != nil {
 		log.Fatalf("Error converting COUNTDOWN_EXPTR_HTTP_PORT env var to int: %v\n", err)
 	}
-	thresholdCheckInterval := getEnv("COUNTDOWN_EXPTR_CHECK_INTERVAL_SECS", "600")
+	thresholdCheckInterval := getEnv("COUNTDOWN_EXPTR_CHECK_INTERVAL_SECS", "60")
 	c.ThresholdCheckInterval, err = strconv.Atoi(thresholdCheckInterval)
 	if err != nil {
 		log.Fatalf("Error converting COUNTDOWN_EXPTR_CHECK_INTERVAL_SECS env var to int: %v\n", err)
@@ -202,6 +204,24 @@ func readDeadlines(d *DeadlinesConfig, config *Config) {
 	}
 }
 
+func listenForSignal(d *DeadlinesConfig, config *Config) {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGHUP)
+	go func(d *DeadlinesConfig, config *Config) {
+		for {
+			_ = <-sigs
+			readDeadlines(d, config)
+			prometheus.Unregister(Countdowns)
+			Countdowns = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+				Name: "countdown_timers",
+				Help: "Countdowns have exceeded threshold",
+			},
+				[]string{"countdown_name", "description", "expired", "deadline", "deadline_time_format", "threshold", "threshold_type", "threshold_tripped"})
+			prometheus.MustRegister(Countdowns)
+		}
+	}(d, config)
+}
+
 func main() {
 
 	config := &Config{}
@@ -209,6 +229,7 @@ func main() {
 
 	initialize(config)
 	readDeadlines(d, config)
+	listenForSignal(d, config)
 
 	for {
 		checkTimers(d)
