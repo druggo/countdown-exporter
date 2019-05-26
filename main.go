@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -20,6 +21,7 @@ import (
 
 type Config struct {
 	DeadlinesFile          string
+	DeadlinesFileType      string
 	ExporterListenPort     int
 	ThresholdCheckInterval int
 }
@@ -147,7 +149,7 @@ func checkExpired(deadlineTime, deadlineTimeFormat string) bool {
 	if deadlineFormat, ok := timeFormatConstants[deadlineTimeFormat]; ok {
 		expireTime, err = time.Parse(deadlineFormat, deadlineTime)
 		if err != nil {
-			log.Printf("Error parsing timestamp from map: %v\ndeadlineFormat: %s\n", err, deadlineFormat)
+			log.Printf("Error parsing timestamp from map: %v", err)
 		}
 	} else {
 		expireTime, err = time.Parse(deadlineTimeFormat, deadlineTime)
@@ -177,6 +179,7 @@ func checkTimers(d *DeadlinesConfig) {
 func initialize(c *Config) {
 	var err error
 	c.DeadlinesFile = getEnv("COUNTDOWN_EXPTR_DEADLINES_FILE", "deadlines.yaml")
+	c.DeadlinesFileType = getEnv("COUNTDOWN_EXPTR_DEADLINES_FILE_TYPE", "yaml")
 	exporterListenPort := getEnv("COUNTDOWN_EXPTR_HTTP_PORT", "9208")
 	c.ExporterListenPort, err = strconv.Atoi(exporterListenPort)
 	if err != nil {
@@ -194,13 +197,20 @@ func initialize(c *Config) {
 }
 
 func readDeadlines(d *DeadlinesConfig, config *Config) {
-	yamlFile, err := ioutil.ReadFile(config.DeadlinesFile)
+	file, err := ioutil.ReadFile(config.DeadlinesFile)
 	if err != nil {
 		log.Printf("Error reading file: %s", err)
 	}
-	err = yaml.Unmarshal(yamlFile, d)
-	if err != nil {
-		log.Fatalf("Error unmarshalling deadlines config\n")
+	if strings.ToUpper(config.DeadlinesFileType) == "YAML" {
+		err = yaml.Unmarshal(file, d)
+		if err != nil {
+			log.Fatalf("Error unmarshalling deadlines yaml config\n")
+		}
+	} else if strings.ToUpper(config.DeadlinesFileType) == "JSON" {
+		err = json.Unmarshal(file, d)
+		if err != nil {
+			log.Fatalf("Error unmarshalling deadlines json config\n")
+		}
 	}
 }
 
