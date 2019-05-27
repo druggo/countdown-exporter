@@ -1,44 +1,22 @@
 ---
 deadlines:
-  - name: "Cert 01"
+  - name: "Server Certificate"
     description: "Used for Server auth"
-    deadline-time: "2006-01-02T15:04:05Z"
-    deadline-time-format: "RFC3339"
-    threshold: 6
+    deadline-time: "2021-05-16T22:30:00Z"
+    threshold: 30
+    threshold-type: "days"
+  - name: "Client Certificate"
+    description: "Used for Client auth"
+    deadline-time: "2021-05-17T22:30:00Z"
+    threshold: 30
     threshold-type: "days"
   - name: "Rent Due"
-    description: "Drop rent in postbox"
+    description: "Rent due first of month"
     deadline-time: "2019-06-01T00:00:00Z"
-    deadline-time-format: "RFC3339"
-    threshold: 7
-    threshold-type: "days"
-  - name: "Rent Due again"
-    description: "Drop rent in postbox"
-    deadline-time: "2019-06-01T00:00:00Z"
-    deadline-time-format: "RFC3339"
-    threshold: 5
-    threshold-type: "days"
-  - name: "Jump in river"
-    description: "Drop rent in postbox"
-    deadline-time: "2021-06-01T00:00:00Z"
-    deadline-time-format: "RFC3339"
-    threshold: 2
-    threshold-type: "years"
-  - name: "Jump in river"
-    description: "Drop rent in postbox"
-    deadline-time: "2021-04-01T00:00:00Z"
-    deadline-time-format: "RFC3339"
-    threshold: 2
-    threshold-type: "years"
-  - name: "Cert 06"
-    description: "happy happy happy"
-    deadline-time: "2020-01-02T15:04:05Z"
-    deadline-time-format: "RFC3339"
-    threshold: 6
-    threshold-type: "days"
-  - name: "Custom (Expired)"
-    description: "happy happy happy"
-    deadline-time: "Sat May 25 15:04:05 2019"
-    deadline-time-format: "Mon Jan _2 15:04:05 2006"
-    threshold: 6
-    threshold-type: "days"
+    threshold: 12
+    threshold-type: "hours"
+  - name: "Veterinary Appointment"
+    description: "Spot's 6-month checkup"
+    deadline-time: "2020-02-01T00:00:00Z"
+    threshold: 1
+    threshold-type: "month"
