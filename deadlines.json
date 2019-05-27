@@ -27,6 +27,22 @@
 			"deadline-time": "2020-02-01T00:00:00Z",
 			"threshold": 1,
 			"threshold-type": "month"
+		},
+		{
+			"name": "Electric Bill Due",
+			"description": "(Custom Deadline Time Format Constant Provided)",
+			"deadline-time": "Mon Jul 29 9:00:00 EDT 2019",
+			"deadline-time-format": "UnixDate",
+			"threshold": 7,
+			"threshold-type": "days"
+		},
+		{
+			"name": "Dental Appointment",
+			"description": "(Custom Deadline Time Format Provided)",
+			"deadline-time": "21 Jan 2020 11:00 EDT",
+			"deadline-time-format": "02 Jan 2006 15:04 MST",
+			"threshold": 7,
+			"threshold-type": "days"
 		}
 	]
 }

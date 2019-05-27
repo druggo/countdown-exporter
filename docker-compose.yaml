@@ -9,3 +9,5 @@ services:
      - COUNTDOWN_EXPTR_DEADLINES_FILE_TYPE=yaml
      - COUNTDOWN_EXPTR_HTTP_PORT=9208
      - COUNTDOWN_EXPTR_CHECK_INTERVAL_SECS=60
+    volumes:
+      - ./deadlines.yaml:/deadlines.yaml

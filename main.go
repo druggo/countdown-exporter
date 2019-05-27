@@ -44,7 +44,7 @@ var (
 		Name: "countdown_timers",
 		Help: "Countdowns have exceeded threshold",
 	},
-		[]string{"countdown_name", "description", "expired", "deadline", "deadline_time_format", "threshold", "threshold_type", "threshold_tripped"})
+		[]string{"countdown", "description", "expired", "deadline", "deadline_time_format", "threshold", "threshold_type", "threshold_tripped"})
 )
 
 var (
@@ -180,6 +180,7 @@ func checkTimers(d *DeadlinesConfig) {
 
 func initialize(c *Config) {
 	var err error
+	// Set exporter configuration from environment variables
 	c.DeadlinesFile = getEnv("COUNTDOWN_EXPTR_DEADLINES_FILE", "deadlines.yaml")
 	c.DeadlinesFileType = getEnv("COUNTDOWN_EXPTR_DEADLINES_FILE_TYPE", "yaml")
 	exporterListenPort := getEnv("COUNTDOWN_EXPTR_HTTP_PORT", "9208")
@@ -193,6 +194,7 @@ func initialize(c *Config) {
 		log.Fatalf("Error converting COUNTDOWN_EXPTR_CHECK_INTERVAL_SECS env var to int: %v\n", err)
 	}
 
+	// Register prometheus metric and start http server
 	prometheus.MustRegister(Countdowns)
 	http.Handle("/metrics", promhttp.Handler())
 	go http.ListenAndServe(fmt.Sprintf(":%d", c.ExporterListenPort), nil)
@@ -218,6 +220,7 @@ func readDeadlines(d *DeadlinesConfig, config *Config) {
 	}
 }
 
+// TODO: get rid of this function
 func setDefaults(d *DeadlinesConfig) {
 	for i, deadline := range d.Deadlines {
 		if deadline.DeadlineTimeFormat == "" {
@@ -239,12 +242,13 @@ func listenForSignal(d *DeadlinesConfig, config *Config) {
 		for {
 			_ = <-sigs
 			readDeadlines(d, config)
+			// Reset existing prom metrics for garbage collection
 			prometheus.Unregister(Countdowns)
 			Countdowns = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 				Name: "countdown_timers",
 				Help: "Countdowns have exceeded threshold",
 			},
-				[]string{"countdown_name", "description", "expired", "deadline", "deadline_time_format", "threshold", "threshold_type", "threshold_tripped"})
+				[]string{"countdown", "description", "expired", "deadline", "deadline_time_format", "threshold", "threshold_type", "threshold_tripped"})
 			prometheus.MustRegister(Countdowns)
 			checkTimers(d)
 		}
