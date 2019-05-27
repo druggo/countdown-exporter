@@ -55,13 +55,13 @@ var (
 
 type DeadlinesConfig struct {
 	Deadlines []struct {
-		Name               string `yaml:"name"`
-		Description        string `yaml:"description"`
-		DeadlineTime       string `yaml:"deadline-time"`
-		DeadlineTimeFormat string `yaml:"deadline-time-format"`
-		Threshold          int    `yaml:"threshold"`
-		ThresholdType      string `yaml:"threshold-type"`
-	} `yaml:"deadlines"`
+		Name               string `yaml:"name" json:"name"`
+		Description        string `yaml:"description" json:"description"`
+		DeadlineTime       string `yaml:"deadline-time" json:"deadline-time"`
+		DeadlineTimeFormat string `yaml:"deadline-time-format" json:"deadline-time-format"`
+		Threshold          int    `yaml:"threshold" json:"threshold"`
+		ThresholdType      string `yaml:"threshold-type" json:"threshold-type"`
+	} `yaml:"deadlines" json:"deadlines"`
 }
 
 func getEnv(key, fallback string) string {
