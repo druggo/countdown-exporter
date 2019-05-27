@@ -18,6 +18,7 @@ The exporter expects either a YAML or JSON file with a single key, `deadlines`, 
 * `deadline-time-format` - [golang time format string](https://golang.org/pkg/time/#Time.Format) (Example golang time format [constants](https://golang.org/pkg/time/#pkg-constants))
   * type: string
   * default: RFC3339
+  * **Warning - exporter does not handle format strings without year, month, day, and tz info**
 * `threshold` - threshold quantity
   * type: int
   * default: days
