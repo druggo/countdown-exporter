@@ -53,15 +53,23 @@ var (
 		[]string{"countdown_name", "description", "expired", "deadline", "deadline_time_format", "threshold", "threshold_type", "threshold_tripped"})
 )
 
+var (
+	DefaultDeadlineTimeFormat = "RFC3339"
+	DefaultThreshold          = 60
+	DefaultThresholdType      = "days"
+)
+
 type DeadlinesConfig struct {
-	Deadlines []struct {
-		Name               string `yaml:"name" json:"name"`
-		Description        string `yaml:"description" json:"description"`
-		DeadlineTime       string `yaml:"deadline-time" json:"deadline-time"`
-		DeadlineTimeFormat string `yaml:"deadline-time-format" json:"deadline-time-format"`
-		Threshold          int    `yaml:"threshold" json:"threshold"`
-		ThresholdType      string `yaml:"threshold-type" json:"threshold-type"`
-	} `yaml:"deadlines" json:"deadlines"`
+	Deadlines []Deadlines `yaml:"deadlines,flow" json:"deadlines,flow"`
+}
+
+type Deadlines struct {
+	Name               string `yaml:"name" json:"name"`
+	Description        string `yaml:"description" json:"description"`
+	DeadlineTime       string `yaml:"deadline-time" json:"deadline-time"`
+	DeadlineTimeFormat string `yaml:"deadline-time-format" json:"deadline-time-format"`
+	Threshold          int    `yaml:"threshold" json:"threshold"`
+	ThresholdType      string `yaml:"threshold-type" json:"threshold-type"`
 }
 
 func getEnv(key, fallback string) string {
@@ -206,10 +214,26 @@ func readDeadlines(d *DeadlinesConfig, config *Config) {
 		if err != nil {
 			log.Fatalf("Error unmarshalling deadlines yaml config\n")
 		}
+		setDefaults(d)
 	} else if strings.ToUpper(config.DeadlinesFileType) == "JSON" {
 		err = json.Unmarshal(file, d)
 		if err != nil {
 			log.Fatalf("Error unmarshalling deadlines json config\n")
+		}
+		setDefaults(d)
+	}
+}
+
+func setDefaults(d *DeadlinesConfig) {
+	for i, deadline := range d.Deadlines {
+		if deadline.DeadlineTimeFormat == "" {
+			d.Deadlines[i].DeadlineTimeFormat = DefaultDeadlineTimeFormat
+		}
+		if deadline.Threshold == 0 {
+			d.Deadlines[i].Threshold = DefaultThreshold
+		}
+		if deadline.ThresholdType == "" {
+			d.Deadlines[i].ThresholdType = DefaultThresholdType
 		}
 	}
 }
@@ -228,6 +252,7 @@ func listenForSignal(d *DeadlinesConfig, config *Config) {
 			},
 				[]string{"countdown_name", "description", "expired", "deadline", "deadline_time_format", "threshold", "threshold_type", "threshold_tripped"})
 			prometheus.MustRegister(Countdowns)
+			checkTimers(d)
 		}
 	}(d, config)
 }
