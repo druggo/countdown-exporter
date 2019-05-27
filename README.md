@@ -1,9 +1,11 @@
 # countdown-exporter
 A countdown (timer) exporter for Prometheus
 
+
 ### Concepts
 * Deadline - countdown timer _expiration_ time.
 * Threshold - configured prior to deadline (can be used as an countdown expiry warning)
+
 
 ### Deadlines/Threshold Configuration
 The exporter expects either a YAML or JSON file with a single key, `deadlines`, whose value is an array of objects containing these fields:
@@ -22,6 +24,19 @@ The exporter expects either a YAML or JSON file with a single key, `deadlines`, 
 * `threshold-type` - threshold type from one of: `years`, `months`, `days`, `hours`, `minutes`, `seconds`
   * type: string
   * default: RFC3339
+
+### Exported Prometheus Metric Reference:
+* Name: `countdown_timers`
+* Labels:
+  * `countdown` - countdown timer name 
+  * `description` - timer description
+  * `expired` - deadline expired status (true or false)
+  * `deadline` - deadline/expiry timestamp
+  * `deadline_time_format` - deadline timestamp format
+  * `threshold` - threshold quantity
+  * `threshold_type` - threshold type (one of: `years`, `months`, `days`, `hours`, `minutes`, `seconds`)
+  * `threshold_tripped` - threshold exceeded status (true or false)
+
 
 ### Exporter Configuration
 The exporter can be configured with these environment variables:
