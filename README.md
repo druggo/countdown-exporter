@@ -17,14 +17,14 @@ The exporter expects either a YAML or JSON file with a single key, `deadlines`, 
   * type: string
 * `deadline-time-format` - [golang time format string](https://golang.org/pkg/time/#Time.Format) (Example golang time format [constants](https://golang.org/pkg/time/#pkg-constants))
   * type: string
-  * default: RFC3339
+  * default: DateOnly
   * **Warning - exporter does not handle format strings without year, month, day, and tz info**
 * `threshold` - threshold quantity
   * type: int
-  * default: days
+  * default: 7
 * `threshold-type` - threshold type from one of: `years`, `months`, `days`, `hours`, `minutes`, `seconds`
   * type: string
-  * default: RFC3339
+  * default: days
 
 ### Exported Prometheus Metric Reference:
 * Name: `countdown_timers`

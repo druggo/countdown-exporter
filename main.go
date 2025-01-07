@@ -37,6 +37,11 @@ var timeFormatConstants = map[string]string{
 	"RFC1123Z":    "Mon, 02 Jan 2006 15:04:05 -0700", // RFC1123 with numeric zone
 	"RFC3339":     "2006-01-02T15:04:05Z07:00",
 	"RFC3339Nano": "2006-01-02T15:04:05.999999999Z07:00",
+	// Handy time format.
+	"Stamp":       "Jan _2 15:04:05",
+	"DateTime":    "2006-01-02 15:04:05",
+	"DateOnly":    "2006-01-02",
+	"TimeOnly":    "15:04:05",
 }
 
 var (
@@ -48,8 +53,8 @@ var (
 )
 
 var (
-	DefaultDeadlineTimeFormat = "RFC3339"
-	DefaultThreshold          = 60
+	DefaultDeadlineTimeFormat = "DateOnly"
+	DefaultThreshold          = 7
 	DefaultThresholdType      = "days"
 )
 
